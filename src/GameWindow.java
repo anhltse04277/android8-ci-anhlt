@@ -1,6 +1,10 @@
+import sun.awt.image.PixelConverter;
+
 import javax.imageio.ImageIO;
+import javax.swing.plaf.TableHeaderUI;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 
 /**
@@ -9,8 +13,14 @@ import java.io.*;
 public class GameWindow extends Frame {
     Image backgroundImage;
     Image planeImage;
+    private static  final int SCREEN_WIDTH = 400;
+    private static  final int SCREEN_HEIGHT = 600;
+    private static  final int SPEED = 10;
+    private BufferedImage backBufferImage;
+    private Graphics backGraphics;
     int planeX = 180;
     int planeY =  550;
+    Thread thread;
 
 
     public GameWindow(){
@@ -39,43 +49,41 @@ public class GameWindow extends Frame {
 
         // dung repaint(); cung on
         repaint();
-       // update(getGraphics());
+        // update(getGraphics());
         // 2: draw image
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 switch(e.getKeyCode()){
                     case KeyEvent.VK_RIGHT:{
-                        if(planeX +10 <= 360 ){
-                            planeX += 10;
-                            repaint();
+                        if(planeX +SPEED <= 360 ){
+                            planeX += SPEED;
+                            //repaint();
                         }
                         break;
                     }
                     case KeyEvent.VK_LEFT:{
-                        if(planeX-10 >= 0){
-                            planeX -=10;
-                            repaint();
+                        if(planeX-SPEED >= 0){
+                            planeX -=SPEED;
+                            //repaint();
                         }
                         break;
                     }
                     case KeyEvent.VK_UP:{
-                        if(planeY -10 >= 0 ){
-                            planeY -= 10;
-                            repaint();
+                        if(planeY -SPEED >= 0 ){
+                            planeY -= SPEED;
+                            //repaint();
                         }
                         break;
                     }
                     case KeyEvent.VK_DOWN:{
-                        if(planeY +10 <= 550 ){
-                            planeY += 10;
-                            repaint();
+                        if(planeY +SPEED <= 550 ){
+                            planeY += SPEED;
+                           // repaint();
                         }
                         break;
                     }
                 }
-
-
             }
 
             @Override
@@ -83,7 +91,25 @@ public class GameWindow extends Frame {
                 super.keyReleased(e);
             }
         });
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    try {
+                        Thread.sleep(17);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    repaint();
+                }
+            }
+        });
+        backBufferImage = new BufferedImage(SCREEN_WIDTH,SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
     }
+    public void start(){
+        thread.start();
+    }
+
     private Image loadImages(String url ){
         try {
             Image image = ImageIO.read(new File("resourses/" + url));
@@ -96,8 +122,13 @@ public class GameWindow extends Frame {
 
     @Override
     public void update(Graphics g) {
-        g.drawImage(backgroundImage,0,0,400,600,null);
-        g.drawImage(planeImage,planeX,planeY,40,50,null);
+        if(backBufferImage != null) {
+            backGraphics = backBufferImage.getGraphics();
+            backGraphics.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+            backGraphics.drawImage(planeImage, planeX, planeY, 40, 50, null);
+            g.drawImage(backBufferImage, 0, 0, null);
+        }
+
         // x = (400-w)  /2
         // y = 600 -25
 
