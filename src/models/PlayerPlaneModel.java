@@ -1,15 +1,16 @@
-import java.awt.*;
+package models;
 
 /**
- * Created by AnhLe on 2/25/2017.
+ * Created by AnhLe on 2/27/2017.
  */
-public class Plane {
-    private Image image;
-    private int x;
+public class PlayerPlaneModel {
 
-    public Image getImage() {
-        return image;
-    }
+    private int x;
+    private int y;
+    private static final int speed = 5;
+    private int height;
+    private int width;
+
 
     public void moveLeft() {
         if ((x - speed) >= 0) {
@@ -35,9 +36,7 @@ public class Plane {
         }
     }
 
-    public void setImage(Image image) {
-        this.image = image;
-    }
+
 
     public int getX() {
         return x;
@@ -57,15 +56,9 @@ public class Plane {
     }
 
 
-    private int y;
 
 
-    private static final int speed = 5;
-    private int height;
-    private int width;
-
-    public Plane(Image image, int x, int y, int height, int width) {
-        this.image = image;
+    public PlayerPlaneModel( int x, int y, int height, int width) {
         this.x = x;
         this.y = y;
         this.height = height;

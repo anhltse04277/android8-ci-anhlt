@@ -1,12 +1,12 @@
 
-import sun.awt.image.PixelConverter;
+import controllers.EnemyController;
+import controllers.PlayerBulletController;
+import controllers.PlayerPlaneController;
+import utils.Utils;
 
-import javax.imageio.ImageIO;
-import javax.swing.plaf.TableHeaderUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -25,9 +25,9 @@ public class GameWindow extends Frame {
     Image planeImage;
     Image enemyImage;
     BackGround backgroup;
-    private static  final int SCREEN_WIDTH = 400;
-    private static  final int SCREEN_HEIGHT = 600;
-    private static  final int SPEED = 5;
+    private static final int SCREEN_WIDTH = 400;
+    private static final int SCREEN_HEIGHT = 600;
+    private static final int SPEED = 5;
 
 
     private BufferedImage backBufferImage;
@@ -38,24 +38,35 @@ public class GameWindow extends Frame {
     Thread threadEnemy;
 
     PlayerBullet playerBullet;
-    ArrayList<PlayerBullet> listBulletPlayer ;
 
-    Enemy enemy;
-    ArrayList<Enemy> listEnemy;
 
-    ArrayList<PlayerBullet> listBulletEneny;
+
+
+
     Random r;
 
-    Plane plane;
 
-    public GameWindow(){
+    PlayerPlaneController playerPlaneController;
+    PlayerBulletController playerBulletController;
+    ArrayList<PlayerBulletController> listPlayerBulletController;
+    ArrayList<PlayerBullet> listBulletPlayer;
+
+    ArrayList<EnemyController> listEnemyController;
+    ArrayList<PlayerBullet> listBulletEneny;
+
+    public GameWindow() {
+
+        listPlayerBulletController = new ArrayList<>();
+        playerPlaneController = new PlayerPlaneController(180,550);
         listBulletPlayer = new ArrayList<>();
-        listEnemy = new  ArrayList<>();
+
+        listEnemyController = new ArrayList<>();
         listBulletEneny = new ArrayList<>();
+
         backgroup = new BackGround();
         r = new Random();
         setVisible(true);
-        setSize(400,600);
+        setSize(400, 600);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -63,6 +74,7 @@ public class GameWindow extends Frame {
                 System.out.println("WindowClosing");
                 System.exit(0);
             }
+
             @Override
             public void windowClosed(WindowEvent e) {
                 super.windowClosed(e);
@@ -70,12 +82,11 @@ public class GameWindow extends Frame {
             }
         });
         // 1: load image
+
+
+
         try {
-            plane =  new Plane();
-            backgroundImage = loadImages("background.png");
-            plane.image = loadImages("plane3.png");
-            plane.x = 180; plane.y = 550;
-            enemyImage = loadImages(("plane1.png"));
+            backgroundImage = Utils.loadImages("background.png");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,31 +98,28 @@ public class GameWindow extends Frame {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                switch(e.getKeyCode()){
-                    case KeyEvent.VK_RIGHT:{
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_RIGHT: {
                         isKeyRight = true;
                         break;
                     }
-                    case KeyEvent.VK_LEFT:{
+                    case KeyEvent.VK_LEFT: {
                         isKeyLeft = true;
 
                         break;
                     }
-                    case KeyEvent.VK_UP:{
+                    case KeyEvent.VK_UP: {
                         isKeyUp = true;
 
                         break;
                     }
-                    case KeyEvent.VK_DOWN:{
+                    case KeyEvent.VK_DOWN: {
                         iskeyDown = true;
                         break;
                     }
-                    case KeyEvent.VK_SPACE:{
-                        PlayerBullet playerBullet = new PlayerBullet();
-                        playerBullet.image = loadImages("bullet.png");
-                        playerBullet.x = plane.x + plane.image.getWidth(null) / 4;
-                        playerBullet.y = plane.y;
-                        listBulletPlayer.add(playerBullet);
+                    case KeyEvent.VK_SPACE: {
+                        playerBulletController = new PlayerBulletController(playerPlaneController.getModel().getX()+10,playerPlaneController.getModel().getY());
+                        listPlayerBulletController.add(playerBulletController);
                         break;
                     }
                 }
@@ -119,20 +127,20 @@ public class GameWindow extends Frame {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                switch (e.getKeyCode()){
-                    case KeyEvent.VK_RIGHT:{
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_RIGHT: {
                         isKeyRight = false;
                         break;
                     }
-                    case KeyEvent.VK_LEFT:{
+                    case KeyEvent.VK_LEFT: {
                         isKeyLeft = false;
                         break;
                     }
-                    case KeyEvent.VK_UP:{
+                    case KeyEvent.VK_UP: {
                         isKeyUp = false;
                         break;
                     }
-                    case KeyEvent.VK_DOWN:{
+                    case KeyEvent.VK_DOWN: {
                         iskeyDown = false;
                         break;
                     }
@@ -144,30 +152,33 @@ public class GameWindow extends Frame {
         });
         threadBullet = new Thread(new Runnable() {
             @Override
-            public void  run() {
-                while(true){
+            public void run() {
+                while (true) {
                     try {
                         enemyIsDie();
                         Thread.sleep(17);
-                       // enemyY += 1;
+
+
+
+                        // enemyY += 1;
                         // Player ban ra dan
                         movePlane();
 
                         backgroup.Update();
-                        if(listEnemy != null){
-                            for(Enemy e:listEnemy){
-                                e.y = e.y + e.speed;
+                        if (listEnemyController != null) {
+                            for (EnemyController e : listEnemyController) {
+                                e.run();
                             }
                         }
 
-                        if(listBulletPlayer != null){
-                            for(PlayerBullet pb: listBulletPlayer){
-                                pb.y -= 10;
+                        if (listPlayerBulletController != null) {
+                            for (PlayerBulletController playerBulletController : listPlayerBulletController) {
+                                playerBulletController.run();
                             }
                         }
 
-                        if(listBulletEneny != null){
-                            for(PlayerBullet eb: listBulletEneny){
+                        if (listBulletEneny != null) {
+                            for (PlayerBullet eb : listBulletEneny) {
                                 eb.y += 4;
                             }
                         }
@@ -175,91 +186,77 @@ public class GameWindow extends Frame {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                     repaint();
+                    repaint();
                 }
             }
         });
         threadEnemy = new Thread(new Runnable() {
             @Override
-            public  void run() {
-                while(true){
-                        try {
+            public void run() {
+                while (true) {
+                    try {
 
-                            enemyIsDie();
-                                        enemy = new Enemy();
-                                        enemy.x =  r.nextInt(560);
-                                        enemy.y = 0;
-                                        enemy.image = loadImages("plane1.png");
-                                        listEnemy.add(enemy);
+                        enemyIsDie();
 
-
-                                            for (Enemy e : listEnemy) {
-                                                PlayerBullet enemyBullet = new PlayerBullet();
-                                                enemyBullet.image = loadImages("enemy_bullet.png");
-                                                enemyBullet.x = e.x + 5;
-                                                enemyBullet.y = e.y;
-
-                                               listBulletEneny.add(enemyBullet);}
-
-
-
-                                        int count = 1000 * (1 + r.nextInt(2));
-                                        Thread.sleep(count);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        EnemyController ec = new EnemyController(r.nextInt(360),0);
+                        listEnemyController.add(ec);
+                        for (EnemyController e : listEnemyController) {
+                            PlayerBullet enemyBullet = new PlayerBullet();
+                            enemyBullet.image = Utils.loadImages("enemy_bullet.png");
+                            enemyBullet.x = e.getModel().getX() + 5;
+                            enemyBullet.y = e.getModel().getY();
+                            listBulletEneny.add(enemyBullet);
                         }
+                        int count = 1000 * (1 + r.nextInt(2));
+                        Thread.sleep(count);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
-        backBufferImage = new BufferedImage(SCREEN_WIDTH,SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        backBufferImage = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
     }
-    public void start(){
+
+    public void start() {
         threadBullet.start();
-       threadEnemy.start();;
+        threadEnemy.start();
+        ;
     }
+
     private void movePlane() {
         //move plane to right
-        if (isKeyRight && (plane.x + SPEED) <= (SCREEN_WIDTH - 40)) {
-            plane.x += SPEED;
+        if (isKeyRight) {
+            playerPlaneController.getModel().moveRight();
         }
         //move plane to left
-        if (isKeyLeft && (plane.x - SPEED) >= 0) {
-            plane.x -= SPEED;
+        if (isKeyLeft) {
+            playerPlaneController.getModel().moveLeft();
         }
         //move plane to up
-        if (isKeyUp && (plane.y - SPEED) > 0) {
-            plane.y -= SPEED;
+        if (isKeyUp) {
+            playerPlaneController.getModel().moveup();
         }
         //move plane to down
-        if (iskeyDown && (plane.y + SPEED) < (SCREEN_HEIGHT - 50)) {
-            plane.y += SPEED;
+        if (iskeyDown) {
+            playerPlaneController.getModel().moveDown();
         }
         //shotting bullet
-        if(isSpace){
 
-        }
 
     }
 
-    private Image loadImages(String url ){
-        try {
-            Image image = ImageIO.read(new File("resourses/" + url));
-            return image;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
-    void enemyIsDie(){
-        Iterator itr = listEnemy.iterator();
-        while(itr.hasNext()) {
-            Enemy e = (Enemy) itr.next();
-            Iterator itr2 = listBulletPlayer.iterator();
-            while(itr2.hasNext()){
-                PlayerBullet pb = (PlayerBullet) itr2.next();
-                if((pb.y-e.y)<=50 && (pb.y -e.y)>=-20){
-                    if((0<=pb.x-e.x) && (pb.x-e.x <=30) ){
+
+    void enemyIsDie() {
+        Iterator itr = listEnemyController.iterator();
+        while (itr.hasNext()) {
+            EnemyController e = (EnemyController) itr.next();
+            Iterator itr2 = listPlayerBulletController.iterator();
+            while (itr2.hasNext()) {
+                PlayerBulletController pb = (PlayerBulletController) itr2.next();
+                if ((pb.getModel().getY() - e.getModel().getY()) <= 50 && (pb.getModel().getY() - e.getModel().getY()) >= -20) {
+                    if ((0 <= pb.getModel().getX() - e.getModel().getX()) && (pb.getModel().getX() - e.getModel().getX() <= 30)) {
                         itr.remove();
                         itr2.remove();
                     }
@@ -270,42 +267,43 @@ public class GameWindow extends Frame {
 
 
     @Override
-    public  void update(Graphics g) {
-        if(backBufferImage != null) {
+    public void update(Graphics g) {
+        if (backBufferImage != null) {
 
             backGraphics = backBufferImage.getGraphics();
             backgroup.Paint(backGraphics);
-           // backGraphics.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
-            backGraphics.drawImage(plane.image, plane.x, plane.y, 40, 50, null);
-            Iterator itr = listBulletPlayer.iterator();
-            while(itr.hasNext()) {
-                PlayerBullet element = (PlayerBullet) itr.next();
-                if(element.y<=0){
+            // backGraphics.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, null);
+            //backGraphics.drawImage(plane.getImage(), plane.getX(), plane.getY(), plane.getWidth(), plane.getHeight(), null);
+            //playerBulletController.draw(backGraphics);
+            playerPlaneController.draw(backGraphics);
+            Iterator itr = listPlayerBulletController.iterator();
+            while (itr.hasNext()) {
+                PlayerBulletController element = (PlayerBulletController) itr.next();
+                if (element.getModel().getY() <= 0) {
                     itr.remove();
-                }else{
-                    backGraphics.drawImage(element.image,element.x,element.y,10,20,null);
+                } else {
+                    element.draw(backGraphics);
                 }
-
             }
 
-            System.out.println(listBulletEneny.size());
+            //System.out.println(listBulletEneny.size());
 
             Iterator itr2 = listBulletEneny.iterator();
-            while(itr2.hasNext()) {
+            while (itr2.hasNext()) {
                 PlayerBullet element = (PlayerBullet) itr2.next();
-                if(element.y>=600){
+                if (element.y >= 600) {
                     itr2.remove();
-                }else{
-                    backGraphics.drawImage(element.image,element.x,element.y,30,30,null);
+                } else {
+                    backGraphics.drawImage(element.image, element.x, element.y, 30, 30, null);
                 }
             }
-            Iterator itr3 = listEnemy.iterator();
-            while(itr3.hasNext()) {
-                Enemy element = (Enemy) itr3.next();
-                if(element.y>=600){
+            Iterator itr3 = listEnemyController.iterator();
+            while (itr3.hasNext()) {
+                EnemyController element = (EnemyController) itr3.next();
+                if (element.getModel().getY() >= 600) {
                     itr3.remove();
-                }else{
-                    backGraphics.drawImage(element.image,element.x,element.y,40,50,null);
+                } else {
+                    element.draw(backGraphics);
                 }
             }
 
@@ -319,9 +317,6 @@ public class GameWindow extends Frame {
 //            for(PlayerBullet e: listBulletEneny){
 //                    backGraphics.drawImage(e.image,e.x,e.y,30,30,null);
 //             }
-
-
-
 
 
             g.drawImage(backBufferImage, 0, 0, null);
