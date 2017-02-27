@@ -21,7 +21,7 @@ public class PlayerPlaneController {
     }
     public PlayerPlaneController(int x, int y){
 
-        this( new PlayerPlaneModel(x,y,40,50),new PlayerPlaneView(Utils.loadImages("plane2.png")));
+        this( new PlayerPlaneModel(x,y,50,40),new PlayerPlaneView(Utils.loadImages("plane2.png")));
 
     }
 

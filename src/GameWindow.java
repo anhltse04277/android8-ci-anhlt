@@ -1,4 +1,5 @@
 
+import controllers.BulletEnemyController;
 import controllers.EnemyController;
 import controllers.PlayerBulletController;
 import controllers.PlayerPlaneController;
@@ -37,31 +38,25 @@ public class GameWindow extends Frame {
 
     Thread threadEnemy;
 
-    PlayerBullet playerBullet;
-
-
-
-
-
     Random r;
 
 
     PlayerPlaneController playerPlaneController;
     PlayerBulletController playerBulletController;
     ArrayList<PlayerBulletController> listPlayerBulletController;
-    ArrayList<PlayerBullet> listBulletPlayer;
+
 
     ArrayList<EnemyController> listEnemyController;
-    ArrayList<PlayerBullet> listBulletEneny;
+    ArrayList<BulletEnemyController> listBulletEnenyController;
 
     public GameWindow() {
 
         listPlayerBulletController = new ArrayList<>();
         playerPlaneController = new PlayerPlaneController(180,550);
-        listBulletPlayer = new ArrayList<>();
+
 
         listEnemyController = new ArrayList<>();
-        listBulletEneny = new ArrayList<>();
+        listBulletEnenyController = new ArrayList<>();
 
         backgroup = new BackGround();
         r = new Random();
@@ -118,7 +113,7 @@ public class GameWindow extends Frame {
                         break;
                     }
                     case KeyEvent.VK_SPACE: {
-                        playerBulletController = new PlayerBulletController(playerPlaneController.getModel().getX()+10,playerPlaneController.getModel().getY());
+                        playerBulletController = new PlayerBulletController(playerPlaneController.getModel().getX()+15,playerPlaneController.getModel().getY());
                         listPlayerBulletController.add(playerBulletController);
                         break;
                     }
@@ -177,9 +172,9 @@ public class GameWindow extends Frame {
                             }
                         }
 
-                        if (listBulletEneny != null) {
-                            for (PlayerBullet eb : listBulletEneny) {
-                                eb.y += 4;
+                        if (listBulletEnenyController != null) {
+                            for (BulletEnemyController eb : listBulletEnenyController) {
+                                eb.run();
                             }
                         }
                         //enemyIsDie();
@@ -201,13 +196,12 @@ public class GameWindow extends Frame {
                         EnemyController ec = new EnemyController(r.nextInt(360),0);
                         listEnemyController.add(ec);
                         for (EnemyController e : listEnemyController) {
-                            PlayerBullet enemyBullet = new PlayerBullet();
-                            enemyBullet.image = Utils.loadImages("enemy_bullet.png");
-                            enemyBullet.x = e.getModel().getX() + 5;
-                            enemyBullet.y = e.getModel().getY();
-                            listBulletEneny.add(enemyBullet);
+                            BulletEnemyController  enemyBullet = new BulletEnemyController(e.getModel().getX() + 5, e.getModel().getY());
+
+                            listBulletEnenyController.add(enemyBullet);
                         }
                         int count = 1000 * (1 + r.nextInt(2));
+                        repaint();
                         Thread.sleep(count);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -288,13 +282,13 @@ public class GameWindow extends Frame {
 
             //System.out.println(listBulletEneny.size());
 
-            Iterator itr2 = listBulletEneny.iterator();
+            Iterator itr2 = listBulletEnenyController.iterator();
             while (itr2.hasNext()) {
-                PlayerBullet element = (PlayerBullet) itr2.next();
-                if (element.y >= 600) {
+                BulletEnemyController element = (BulletEnemyController) itr2.next();
+                if (element.getModel().getY() >= 600) {
                     itr2.remove();
                 } else {
-                    backGraphics.drawImage(element.image, element.x, element.y, 30, 30, null);
+                    element.draw(backGraphics);
                 }
             }
             Iterator itr3 = listEnemyController.iterator();

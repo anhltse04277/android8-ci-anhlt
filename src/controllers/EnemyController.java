@@ -21,7 +21,7 @@ public class EnemyController {
     }
     public EnemyController(int x, int y){
 
-        this( new EnemyModel(x,y,40,50),new EnemyView(Utils.loadImages("plane1.png")));
+        this( new EnemyModel(x,y,50,40),new EnemyView(Utils.loadImages("plane1.png")));
     }
 
     public EnemyModel getModel() {
