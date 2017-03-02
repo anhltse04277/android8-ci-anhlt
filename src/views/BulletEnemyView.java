@@ -8,14 +8,10 @@ import java.awt.*;
 /**
  * Created by AnhLe on 2/27/2017.
  */
-public class BulletEnemyView {
-    private Image image;
+public class BulletEnemyView extends GameView {
+
 
     public BulletEnemyView(Image image) {
-        this.image = image;
+        super(image);
     }
-    public void draw(Graphics graphics, BulletEnemyModel model){
-        graphics.drawImage(image, model.getX(),model.getY(),model.getWidth(),model.getHeight(),null);
-    }
-
 }

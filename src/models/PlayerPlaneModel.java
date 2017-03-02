@@ -3,13 +3,14 @@ package models;
 /**
  * Created by AnhLe on 2/27/2017.
  */
-public class PlayerPlaneModel {
+public class PlayerPlaneModel extends GameModel {
 
-    private int x;
-    private int y;
+
     private static final int speed = 5;
-    private int height;
-    private int width;
+
+    public PlayerPlaneModel(int x, int y, int height, int width) {
+        super(x, y, height, width);
+    }
 
 
     public void moveLeft() {
@@ -38,31 +39,10 @@ public class PlayerPlaneModel {
 
 
 
-    public int getX() {
-        return x;
-    }
-
-
-    public int getY() {
-        return y;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public int getWidth() {
-        return width;
-    }
 
 
 
 
-    public PlayerPlaneModel( int x, int y, int height, int width) {
-        this.x = x;
-        this.y = y;
-        this.height = height;
-        this.width = width;
-    }
+
 
 }

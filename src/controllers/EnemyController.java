@@ -1,38 +1,44 @@
 package controllers;
 
 import models.EnemyModel;
+import models.GameModel;
 import models.PlayerPlaneModel;
 import utils.Utils;
 import views.EnemyView;
+import views.GameView;
 import views.PlayerPlaneView;
 
 import java.awt.*;
+import java.util.Vector;
 
 /**
  * Created by AnhLe on 2/27/2017.
  */
-public class EnemyController {
-    private EnemyModel model;
-    private EnemyView view;
-
-    public EnemyController(EnemyModel model, EnemyView view) {
-        this.model = model;
-        this.view = view;
-    }
-    public EnemyController(int x, int y){
-
-        this( new EnemyModel(x,y,50,40),new EnemyView(Utils.loadImages("plane1.png")));
+public class EnemyController  extends GameController{
+    Vector<BulletEnemyController> listEnemyBulletController;
+    public EnemyController(GameView view, GameModel mode ,Vector<BulletEnemyController> listEnemyBulletController) {
+        super(view, mode );
+        this.listEnemyBulletController = listEnemyBulletController;
     }
 
+    public EnemyController(int x, int y ,Vector<BulletEnemyController> listEnemyBulletController){
+
+        this(new EnemyView(Utils.loadImages("plane1.png")), new EnemyModel(x,y,50,40),listEnemyBulletController);
+    }
     public EnemyModel getModel() {
-        return model;
+        return (EnemyModel)model;
     }
     public void run(){
-        model.move();
+        ((EnemyModel) model).move();
+    }
+
+    public void shoot(){
+        BulletEnemyController bulletEnemyController = new BulletEnemyController(model.getX()+model.getWidth()/2 -BulletEnemyController.width/2, model.getY()+model.getHeight());
+        listEnemyBulletController.add(bulletEnemyController);
     }
 
     public EnemyView getView() {
-        return view;
+        return (EnemyView)view;
     }
 
 

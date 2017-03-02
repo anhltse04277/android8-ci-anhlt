@@ -1,9 +1,11 @@
 package controllers;
 
 import models.BulletEnemyModel;
+import models.GameModel;
 import models.PlayerBulletModel;
 import utils.Utils;
 import views.BulletEnemyView;
+import views.GameView;
 import views.PlayerBulletView;
 
 import java.awt.*;
@@ -11,27 +13,28 @@ import java.awt.*;
 /**
  * Created by AnhLe on 2/27/2017.
  */
-public class BulletEnemyController {
-    private BulletEnemyModel model;
-    private BulletEnemyView view;
+public class BulletEnemyController extends GameController {
 
-    public BulletEnemyController(BulletEnemyModel model, BulletEnemyView view) {
-        this.model = model;
-        this.view = view;
+    public static final int width = 30;
+    public static final int height = 30;
+    public BulletEnemyController(GameView view, GameModel mode) {
+        super(view, mode);
     }
+
+
     public BulletEnemyController(int x, int y){
-        this( new BulletEnemyModel(x,y,30,30),new BulletEnemyView(Utils.loadImages("enemy_bullet.png")));
+        this(new BulletEnemyView(Utils.loadImages("enemy_bullet.png")), new BulletEnemyModel(x,y,height,width));
     }
     public BulletEnemyModel getModel() {
-        return model;
+        return (BulletEnemyModel) model;
     }
 
     public BulletEnemyView getView() {
-        return view;
+        return (BulletEnemyView)view;
     }
 
     public void run(){
-        model.fly();
+        ( (BulletEnemyModel) model).fly();
     }
     public void draw(Graphics graphics){
         view.draw(graphics,model);
