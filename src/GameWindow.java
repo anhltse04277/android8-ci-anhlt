@@ -23,7 +23,7 @@ public class GameWindow extends Frame {
     Image backgroundImage;
     Image planeImage;
     Image enemyImage;
-    BackGround backgroup;
+    BackGroundController backgroup;
     private static final int SCREEN_WIDTH = 400;
     private static final int SCREEN_HEIGHT = 600;
     private static final int SPEED = 5;
@@ -49,19 +49,19 @@ public class GameWindow extends Frame {
 
     Vector<IsLandController> listIsLandController;
 
-   // ControllerManager cm ;
+    // ControllerManager cm ;
 
     public GameWindow() {
         //cm = new ControllerManager();
         listPlayerBulletController = new Vector<>();
         listIsLandController = new Vector<>();
-        playerPlaneController = new PlayerPlaneController(180,550,listPlayerBulletController);
+        playerPlaneController = new PlayerPlaneController(180, 550, listPlayerBulletController);
 
 
         listEnemyController = new ArrayList<>();
         listBulletEnenyController = new Vector<>();
 
-        backgroup = new BackGround();
+        backgroup = new BackGroundController(0, 0);
         r = new Random();
         setVisible(true);
         setSize(400, 600);
@@ -80,7 +80,6 @@ public class GameWindow extends Frame {
             }
         });
         // 1: load image
-
 
 
         try {
@@ -116,7 +115,7 @@ public class GameWindow extends Frame {
                         break;
                     }
                     case KeyEvent.VK_SPACE: {
-                        if(playerPlaneController != null){
+                        if (playerPlaneController != null) {
                             playerPlaneController.shoot();
                         }
 
@@ -155,11 +154,11 @@ public class GameWindow extends Frame {
             public void run() {
                 while (true) {
                     try {
-                       enemyIsDie();
+                        enemyIsDie();
                         Thread.sleep(17);
                         movePlane();
 
-                        backgroup.Update();
+                        backgroup.run();
                         if (listEnemyController != null) {
                             for (EnemyController e : listEnemyController) {
                                 e.run();
@@ -182,9 +181,10 @@ public class GameWindow extends Frame {
                                 il.run();
                             }
                         }
-                        if(playerPlaneController != null){
-                            if(isPlaneDie()){
+                        if (playerPlaneController != null) {
+                            if (isPlaneDie()) {
                                 playerPlaneController = null;
+
                             }
                         }
 
@@ -203,24 +203,24 @@ public class GameWindow extends Frame {
                 while (true) {
                     try {
                         enemyIsDie();
-                        EnemyController ec = new EnemyController(r.nextInt(360),0,listBulletEnenyController);
+                        EnemyController ec = new EnemyController(r.nextInt(360), 0, listBulletEnenyController);
                         //cm.AddNewObject(ec);
 
 
                         listEnemyController.add(ec);
                         for (EnemyController e : listEnemyController) {
-                           e.shoot();
+                            e.shoot();
                         }
 
                         //System.out.println(listEnemyController.size());
 
                         int count = 1000 * (1 + r.nextInt(2));
-                        if(count==2000){
+                        if (count == 2000) {
                             int island = r.nextInt(2);
-                            if(island==0){
-                                listIsLandController.add(new IsLandController(  r.nextInt(560),0 ,"island-2.png" ));
+                            if (island == 0) {
+                                listIsLandController.add(new IsLandController(r.nextInt(540), 0, "island-2.png"));
                             } else {
-                                listIsLandController.add(new IsLandController( r.nextInt(560),0,"island.png"   ));
+                                listIsLandController.add(new IsLandController(r.nextInt(540), 0, "island.png"));
                             }
                         }
                         repaint();
@@ -233,6 +233,7 @@ public class GameWindow extends Frame {
         });
         backBufferImage = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
     }
+
     public void start() {
         threadBullet.start();
         threadEnemy.start();
@@ -241,7 +242,7 @@ public class GameWindow extends Frame {
 
     private void movePlane() {
         //move plane to right
-        if(playerPlaneController != null){
+        if (playerPlaneController != null) {
             if (isKeyLeft) {
                 playerPlaneController.getModel().moveLeft();
             }
@@ -262,7 +263,7 @@ public class GameWindow extends Frame {
 
     }
 
-    void enemyIsDie() {
+    synchronized void enemyIsDie() {
         Iterator itr = listEnemyController.iterator();
         while (itr.hasNext()) {
             EnemyController e = (EnemyController) itr.next();
@@ -270,27 +271,36 @@ public class GameWindow extends Frame {
             while (itr2.hasNext()) {
                 PlayerBulletController pb = (PlayerBulletController) itr2.next();
                 if ((e.getModel().checkRectangle(pb.getModel()))) {
-                        itr.remove();
-                        itr2.remove();
+                    itr.remove();
+                    itr2.remove();
                 }
             }
         }
     }
-    boolean isPlaneDie(){
+
+    synchronized boolean isPlaneDie() {
         Iterator itr = listBulletEnenyController.iterator();
-        while(itr.hasNext()){
+        while (itr.hasNext()) {
             BulletEnemyController bec = (BulletEnemyController) itr.next();
-            if(playerPlaneController.getModel().checkRectangle(bec.getModel())){
+            if (playerPlaneController.getModel().checkRectangle(bec.getModel())) {
+                return true;
+            }
+        }
+        Iterator itr2 = listEnemyController.iterator();
+        while (itr2.hasNext()) {
+            EnemyController ec = (EnemyController) itr2.next();
+            if (playerPlaneController.getModel().checkRectangle(ec.getModel())) {
                 return true;
             }
         }
         return false;
     }
+
     @Override
-    public void update(Graphics g) {
+    public synchronized void update(Graphics g) {
         if (backBufferImage != null) {
             backGraphics = backBufferImage.getGraphics();
-            backgroup.Paint(backGraphics);
+            backgroup.draw(backGraphics);
             Iterator itr4 = listIsLandController.iterator();
             while (itr4.hasNext()) {
                 IsLandController element = (IsLandController) itr4.next();
@@ -300,40 +310,40 @@ public class GameWindow extends Frame {
                     element.draw(backGraphics);
                 }
             }
-                if(playerPlaneController != null){
-                    playerPlaneController.draw(backGraphics);
-                }
+            if (playerPlaneController != null) {
+                playerPlaneController.draw(backGraphics);
+            }
 
-                Iterator itr = listPlayerBulletController.iterator();
-                while (itr.hasNext()) {
-                    PlayerBulletController element = (PlayerBulletController) itr.next();
-                    if (element.getModel().getY() <= 0) {
-                        itr.remove();
-                    } else {
-                        element.draw(backGraphics);
-                    }
+            Iterator itr = listPlayerBulletController.iterator();
+            while (itr.hasNext()) {
+                PlayerBulletController element = (PlayerBulletController) itr.next();
+                if (element.getModel().getY() <= 0) {
+                    itr.remove();
+                } else {
+                    element.draw(backGraphics);
                 }
-                Iterator itr2 = listBulletEnenyController.iterator();
-                while (itr2.hasNext()) {
-                    BulletEnemyController element = (BulletEnemyController) itr2.next();
-                    if (element.getModel().getY() >= 600) {
-                        itr2.remove();
-                    } else {
-                        element.draw(backGraphics);
-                    }
+            }
+            Iterator itr2 = listBulletEnenyController.iterator();
+            while (itr2.hasNext()) {
+                BulletEnemyController element = (BulletEnemyController) itr2.next();
+                if (element.getModel().getY() >= 600) {
+                    itr2.remove();
+                } else {
+                    element.draw(backGraphics);
                 }
-                Iterator itr3 = listEnemyController.iterator();
-                while (itr3.hasNext()) {
-                    EnemyController element = (EnemyController) itr3.next();
-                    if (element.getModel().getY() >= 600) {
-                        itr3.remove();
-                    } else {
-                        element.draw(backGraphics);
-                    }
+            }
+            Iterator itr3 = listEnemyController.iterator();
+            while (itr3.hasNext()) {
+                EnemyController element = (EnemyController) itr3.next();
+                if (element.getModel().getY() >= 600) {
+                    itr3.remove();
+                } else {
+                    element.draw(backGraphics);
                 }
+            }
 
 
-                g.drawImage(backBufferImage, 0, 0, null);
+            g.drawImage(backBufferImage, 0, 0, null);
 
 
         }
