@@ -9,7 +9,7 @@ import java.awt.*;
  */
 public class PlayerBulletView extends GameView {
 
-    public PlayerBulletView(Image image, PlayerBulletModel model) {
+    public PlayerBulletView(Image image) {
         super(image);
     }
 }

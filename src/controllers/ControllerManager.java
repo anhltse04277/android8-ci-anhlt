@@ -1,6 +1,9 @@
 package controllers;
 
+import models.GameModel;
+
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -8,40 +11,62 @@ import java.util.Vector;
  * Created by AnhLe on 3/2/2017.
  */
 public class ControllerManager {
-    Vector<GameController> listGameController;
+
+    protected   Vector<GameController> gameControllers;
+
+    BackGroundController backGroundController;
+
+
 
     public ControllerManager() {
+        gameControllers = new Vector<>();
+        backGroundController = new BackGroundController(0,0);
 
     }
-    public void AddNewObject(GameController gc){
-        listGameController.add(gc);
-    }
-    public void drawUpdate(Graphics graphics){
-        Iterator itr = listGameController.iterator();
-        while (itr.hasNext()) {
 
-            GameController element = (GameController) itr.next();
-            if (element.model.getY() <= 0 || element.model.getY() >= 600) {
-                itr.remove();
-            } else {
-                element.draw(graphics);
+    public void add(GameController gameController) {
+        this.gameControllers.add(gameController);
+    }
+
+    public void run() {
+        backGroundController.run();
+        removeDeadGameControllers();
+        for(int i=0; i < gameControllers.size()-1; i++){
+            for(int j=i+1; j< gameControllers.size(); j++){
+                if(gameControllers.get(i).model.checkIntersects(gameControllers.get(j).model)){
+                    gameControllers.get(i).onContact(gameControllers.get(j));
+                    gameControllers.get(j).onContact(gameControllers.get(i));
+                }
+            }
+        }
+        for (GameController gameController: this.gameControllers) {
+            gameController.run();
+        }
+
+
+    }
+
+    private void removeDeadGameControllers() {
+        Iterator<GameController> gameControllerIterator = this.gameControllers.iterator();
+        while(gameControllerIterator.hasNext()) {
+            GameController gameController = gameControllerIterator.next();
+            if(!gameController.isAlive()) {
+                gameControllerIterator.remove();
             }
         }
     }
 
-//    public void controlCollision(){
-//
-//
-//        Iterator itr = listGameController.iterator();
-//        while (itr.hasNext()) {
-//            GameController gc1 = ( GameController)itr.next();
-//            while(itr.hasNext()){
-//                GameController gc2 = ( GameController)itr.next();
-//                if(gc1.model.checkRectangle(gc2.model)){
-//                    if(gc1.getClass().isMemberClass())
-//                }
-//            }
-//        }
-//    }
+    public void draw(Graphics g) {
+        backGroundController.draw(g);
+        for (GameController gameController: this.gameControllers) {
+            if(gameController instanceof IsLandController){
+                gameController.draw(g);
+            }
+        }
 
+        for (GameController gameController: this.gameControllers) {
+            if(!(gameController instanceof IsLandController))
+            gameController.draw(g);
+        }
+    }
 }

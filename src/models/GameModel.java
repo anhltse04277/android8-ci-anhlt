@@ -1,6 +1,7 @@
 package models;
 
 import controllers.GameController;
+import utils.Utils;
 
 import java.awt.*;
 
@@ -13,7 +14,9 @@ public class GameModel {
     protected int height;
     protected int width;
 
-    public GameModel(int x, int y, int height, int width) {
+    protected  boolean isAlive = true ;
+
+    public GameModel(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.height = height;
@@ -53,11 +56,32 @@ public class GameModel {
         this.width = width;
     }
 
-    public boolean checkRectangle(GameModel gc){
-        Rectangle r1 = new Rectangle(getX() , getY(), getWidth(), getHeight());
-        Rectangle r2 = new Rectangle(gc.getX(), gc.getY() , gc.getWidth(), gc.getHeight());
+    public boolean checkIntersects(GameModel gc){
+        Rectangle r1 = getRectangle(this);
+        Rectangle r2 = getRectangle(gc);
         return r1.intersects(r2);
     }
+    public Rectangle getRectangle(GameModel gc){
+        return new Rectangle(gc.getX(), gc.getY() , gc.getWidth(), gc.getHeight());
+    }
+
+    public boolean isAlive(){
+        return isAlive;
+    }
+
+    public void setDie(){
+        this.isAlive = false;
+    }
+
+    public void move (GameVector gameVector){
+        this.x +=gameVector.getX();
+        this.y +=gameVector.getY();
+        if((this.x> Utils.WIDTH_SCREEN || this.x+this.width <0) || (this.y> Utils.HEIGHT_SCREEN || this.y+this.height <0) ){
+            this.isAlive = false;
+        }
+
+    }
+
 
 }
 

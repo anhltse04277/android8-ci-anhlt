@@ -1,6 +1,7 @@
 package controllers;
 
 import models.GameModel;
+import models.GameVector;
 import models.IsLandModel;
 import models.PlayerBulletModel;
 import utils.Utils;
@@ -28,7 +29,7 @@ public class IsLandController extends GameController {
         view.draw(g,model);
     }
     public void run(){
-        ((IsLandModel)model).run();
+        ((IsLandModel)model).move(new GameVector(0,1));
     }
     public GameModel getModel(){
         return model;

@@ -2,6 +2,7 @@ package views;
 
 import models.BackGroundModel;
 import models.GameModel;
+import utils.Utils;
 
 import java.awt.*;
 
@@ -13,7 +14,7 @@ public class BackGroundView extends GameView {
         super(image);
     }
     public void Paint(Graphics graphics , BackGroundModel bgv) {
-        graphics.drawImage(image, bgv.getX(), bgv.getY(),400,600, null);
-        graphics.drawImage(image, bgv.getX2(), bgv.getY2(),400,600, null);
+        graphics.drawImage(image, bgv.getX(), bgv.getY(), Utils.WIDTH_SCREEN,Utils.HEIGHT_SCREEN, null);
+        graphics.drawImage(image, bgv.getX2(), bgv.getY2(),Utils.WIDTH_SCREEN,Utils.HEIGHT_SCREEN, null);
     }
 }

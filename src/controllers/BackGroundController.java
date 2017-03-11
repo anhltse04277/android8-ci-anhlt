@@ -21,7 +21,7 @@ public class BackGroundController extends GameController {
 
     public BackGroundController(int x, int y) {
 
-        this(new BackGroundView(Utils.loadImages("background.png")), new BackGroundModel(x, y, 600, 400));
+        this(new BackGroundView(Utils.loadImages("background.png")), new BackGroundModel(x, y, 700, 500));
     }
 
     @Override

@@ -11,16 +11,16 @@ public class BackGroundModel extends  GameModel
         super(x, y, height, width);
 
         x2 = 0;
-        y2 = y-600;
+        y2 = y-700;
     }
     public void Update() {
         y+=1;
         y2+=1;
-        if (y2 >600) {
-            y2 = y - 600;
+        if (y2 >700) {
+            y2 = y - 700;
         }
-        if (y>600) {
-            y = y2 -600;
+        if (y>700) {
+            y = y2 -700;
         }
     }
 
