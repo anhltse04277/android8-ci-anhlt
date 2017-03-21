@@ -13,6 +13,7 @@ public class GameController {
     protected GameModel model;
     protected int hp = 100;
 
+
     public GameController(GameView view, GameModel mode) {
         this.view = view;
         this.model = mode;

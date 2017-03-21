@@ -1,6 +1,7 @@
 package models;
 
 import controllers.GameController;
+import utils.SoundPlayer;
 import utils.Utils;
 
 import java.awt.*;
@@ -15,6 +16,7 @@ public class GameModel {
     protected int width;
 
     protected  boolean isAlive = true ;
+    protected boolean isExplosive = false;
 
     public GameModel(int x, int y, int width, int height) {
         this.x = x;
@@ -80,6 +82,13 @@ public class GameModel {
             this.isAlive = false;
         }
 
+    }
+    public void explosive() {
+        this.isExplosive = true;
+    }
+
+    public boolean isExplosive() {
+        return isExplosive;
     }
 
 

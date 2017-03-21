@@ -94,8 +94,12 @@ public class PlayerBulletController extends GameController {
 
     @Override
     public void onContact(GameController gameController) {
+
         if(gameController instanceof EnemyController){
-            this.getModel().setDie();
+            if(!gameController.model.isExplosive()){
+                this.getModel().setDie();
+            }
+
         }
     }
 }

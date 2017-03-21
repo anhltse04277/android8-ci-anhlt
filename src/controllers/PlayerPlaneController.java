@@ -4,6 +4,7 @@ import models.GameModel;
 import models.GameVector;
 import models.PlayerBulletModel;
 import models.PlayerPlaneModel;
+import utils.SoundPlayer;
 import utils.Utils;
 import views.GameView;
 import views.PlayerBulletView;
@@ -19,30 +20,32 @@ import java.util.Vector;
  * Created by AnhLe on 2/27/2017.
  */
 public class PlayerPlaneController extends GameController implements KeyListener {
-    public static final   int SPEED = 5;
-    public int attack_Shot = 5;
+    public static final int SPEED = 5;
+    public int attack_Shot = 3;
     private KeyInputManage keyInputManage;
-    boolean checkGetBomb =false;
-    int level =1;
-    int count ;
-    Vector<GameController> listPlayerBulletController ;
-    public PlayerPlaneController(GameView view, GameModel model  ) {
+    boolean checkGetBomb = false;
+    int level = 1;
+    int count;
+
+    Vector<GameController> listPlayerBulletController;
+
+    public PlayerPlaneController(GameView view, GameModel model) {
         super(view, model);
         keyInputManage = new KeyInputManage();
     }
 
-    public void setView(int level){
+    public void setView(int level) {
 
-        switch (level){
-            case 1:{
+        switch (level) {
+            case 1: {
                 view.setImage(Utils.loadImages("plane2.png"));
                 break;
             }
-            case 2:{
+            case 2: {
                 view.setImage(Utils.loadImages("plane4.png"));
                 break;
             }
-            case 3:{
+            case 3: {
                 view.setImage(Utils.loadImages("plane3.png"));
                 break;
             }
@@ -58,11 +61,11 @@ public class PlayerPlaneController extends GameController implements KeyListener
         this.checkGetBomb = checkGetBomb;
     }
 
-    public PlayerPlaneController(int x, int y, Vector<GameController> listGameController ){
+    public PlayerPlaneController(int x, int y, Vector<GameController> listGameController) {
 
         this(new PlayerPlaneView(Utils.loadImages("plane2.png")),
-                new PlayerPlaneModel(x,y,50,40));
-        listPlayerBulletController =  listGameController;
+                new PlayerPlaneModel(x, y, 50, 40));
+        listPlayerBulletController = listGameController;
     }
 
     public PlayerPlaneModel getModel() {
@@ -70,12 +73,12 @@ public class PlayerPlaneController extends GameController implements KeyListener
     }
 
 
-
     public PlayerPlaneView getView() {
-        return (PlayerPlaneView)view;
+        return (PlayerPlaneView) view;
     }
-    public void draw(Graphics graphics){
-       view.draw(graphics,model);
+
+    public void draw(Graphics graphics) {
+        view.draw(graphics, model);
     }
 
     public void setLevel(int level) {
@@ -133,87 +136,106 @@ public class PlayerPlaneController extends GameController implements KeyListener
                 break;
         }
     }
+
     @Override
-    public void onContact(GameController gameController){
-        if(gameController instanceof  BulletEnemyController){
-            if(level > 1){
-                level =1;
+    public void onContact(GameController gameController) {
+        if (gameController instanceof BulletEnemyController) {
+            if (level > 1) {
+                level = 1;
                 setView(level);
             } else {
-                this.hp -=20;
-                if(hp <= 0){
-                    this.getModel().setDie();
+                this.hp -= 20;
+                if (hp <= 0) {
+                    model.explosive();
+                    // if(isPlaysound) {
+                    Utils.getSoundExplosive();
+                    //  isPlaysound = false;
+                    //  }
                 }
             }
-        } else if(gameController instanceof PowerUpController){
-            if(level <3){
+        } else if (gameController instanceof PowerUpController) {
+            if (level < 3) {
                 level++;
                 setView(level);
             }
 
 
-        } else if(gameController instanceof EnemyController){
-            if(level > 1){
-                level =1;
-                setView(level);
-            } else {
-                this.hp -=50;
-                if(hp <= 0){
-                    this.getModel().setDie();
+        } else if (gameController instanceof EnemyController) {
+            if(!gameController.model.isExplosive()){
+                if (level > 1) {
+                    level = 1;
+                    setView(level);
+                } else {
+                    this.hp -= 50;
+                    if (hp <= 0) {
+
+                        // if(isPlaysound) {
+                        model.explosive();
+                        Utils.getSoundExplosive();
+                        //  isPlaysound = false;
+                        //  }
+                    }
                 }
             }
 
-        } else if(gameController instanceof BombController){
-                checkGetBomb = true;
+
+        } else if (gameController instanceof BombController) {
+            checkGetBomb = true;
+            Utils.getSoundExplosive();
         }
     }
 
     @Override
     public void run() {
+        if(model.isExplosive()){
+            if(!((PlayerPlaneView) view).explode()){
+                model.setDie();
+            }
+        }
         count++;
         if (keyInputManage.keyDown && !keyInputManage.keyUp && ((model.getY() + SPEED) < (Utils.HEIGHT_SCREEN - model.getHeight()))) {
-
-            this.getModel().move(new GameVector(0,SPEED));
+            this.getModel().move(new GameVector(0, SPEED));
         } else if (!keyInputManage.keyDown && keyInputManage.keyUp && ((model.getY() - SPEED) > model.getHeight() / 2)) {
-            this.getModel().move(new GameVector(0,-SPEED));
+            this.getModel().move(new GameVector(0, -SPEED));
         }
 
         if (keyInputManage.keyLeft && !keyInputManage.keyRight && ((model.getX() - SPEED) > 0)) {
-            this.getModel().move(new GameVector(-SPEED,0));
+            this.getModel().move(new GameVector(-SPEED, 0));
         } else if (!keyInputManage.keyLeft && keyInputManage.keyRight && ((model.getX() + SPEED) < Utils.WIDTH_SCREEN - model.getWidth())) {
-            this.getModel().move(new GameVector(SPEED,0));
+            this.getModel().move(new GameVector(SPEED, 0));
         }
 
 
-        if(keyInputManage.keySpace) {
+        if (keyInputManage.keySpace) {
+
+
             if (count > attack_Shot) {
+                Utils.getSoundGun_Single_Shot();
                 switch (level) {
                     case 1: {
-                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UP, (PlayerPlaneModel )model));
+                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UP, (PlayerPlaneModel) model));
                         System.out.println(listPlayerBulletController.size());
                         break;
                     }
                     case 2: {
-                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPDOUBLE, (PlayerPlaneModel )model));
-                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UP, (PlayerPlaneModel )model));
+                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPDOUBLE, (PlayerPlaneModel) model));
+                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UP, (PlayerPlaneModel) model));
 
 
                         break;
                     }
-                    case 3:{
+                    case 3: {
 
-                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UP, (PlayerPlaneModel )model));
-                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPDOUBLE, (PlayerPlaneModel )model));
-                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPLEFT, (PlayerPlaneModel )model));
-                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPRIGHT, (PlayerPlaneModel )model));
+                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UP, (PlayerPlaneModel) model));
+                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPDOUBLE, (PlayerPlaneModel) model));
+                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPLEFT, (PlayerPlaneModel) model));
+                        listPlayerBulletController.add(PlayerBulletController.create(PlayerBulletController.PlayerBulletType.UPRIGHT, (PlayerPlaneModel) model));
                     }
                 }
             }
             count = 0;
         }
     }
-
-
 
 
 }

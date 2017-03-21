@@ -1,12 +1,12 @@
 
 import controllers.*;
+import utils.SoundPlayer;
 import utils.Utils;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
@@ -23,6 +23,7 @@ public class GameWindow extends Frame {
     private static final int SCREEN_WIDTH = Utils.WIDTH_SCREEN;
     private static final int SCREEN_HEIGHT = Utils.HEIGHT_SCREEN;
     private static final int SPEED = 5;
+
 
 
     private BufferedImage backBufferImage;
@@ -48,14 +49,18 @@ public class GameWindow extends Frame {
     // ControllerManager cm ;
 
     ControllerManager poolgameControlManager;
+    SoundPlayer soundPlayer;
 
     public GameWindow() {
         //cm = new ControllerManager();
+        soundPlayer = new SoundPlayer("Strikers_1945_II.wav");
+        soundPlayer.playLoop();
         poolgameControlManager = new PoolControllerManager();
         this.addKeyListener(((PoolControllerManager)poolgameControlManager).getPlayerPlaneController());
 
         backgroup = new BackGroundController(0, 0);
         r = new Random();
+
         setVisible(true);
         setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         addKeyListener(((PoolControllerManager)poolgameControlManager).getPlayerPlaneController());

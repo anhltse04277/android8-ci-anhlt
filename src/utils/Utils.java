@@ -22,7 +22,7 @@ public class Utils {
     public static Image loadImages(String url) {
 
         try {
-            Image image = ImageIO.read(new File("resourses/" + url));
+            Image image = ImageIO.read(new File("resources/" + url));
             return image;
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,5 +47,18 @@ public class Utils {
     }
     public static  int getYBulletEnemy(EnemyModel playerPlaneModel , int widthBulletPlayer , int heightBulletPlayer){
         return playerPlaneModel.getY()+(heightBulletPlayer);
+    }
+
+    public static void getSoundExplosive(){
+        SoundPlayer shotSound = new SoundPlayer("explosive.wav");
+        shotSound.play();
+    }
+    public static void getSoundGun_Single_Shot(){
+        SoundPlayer shotSound = new SoundPlayer("gun-single-shot.wav");
+        shotSound.play();
+    }
+    public static void getSoundStrikerst(){
+        SoundPlayer shotSound = new SoundPlayer("Strikers_1945_II.wav");
+        shotSound.play();
     }
 }

@@ -6,6 +6,7 @@ import controllers.stagegy.MoveDownLeft;
 import controllers.stagegy.MoveDownRightBehavior;
 import models.EnemyModel;
 import models.GameModel;
+import utils.SoundPlayer;
 import utils.Utils;
 import views.EnemyView;
 import views.GameView;
@@ -17,7 +18,8 @@ public class EnemyController  extends GameController{
 
     MoveBehavior moveBehavior;
     String enemyType;
-    public EnemyController(GameView view, GameModel mode ) {
+    boolean isPlaysound = true;
+    public EnemyController(EnemyView view, GameModel mode ) {
         super(view, mode );
 
     }
@@ -27,6 +29,7 @@ public class EnemyController  extends GameController{
         YELLOW,
         BLUE
     }
+
 
     public String getEnemyType() {
         return enemyType;
@@ -49,7 +52,7 @@ public class EnemyController  extends GameController{
         } else if(type == EnemyType.YELLOW){
 
             EnemyController enemyPlaneController = new EnemyController(
-                    new GameView(Utils.loadImages("enemy_plane_yellow_1.png")),
+                    new EnemyView(Utils.loadImages("enemy_plane_yellow_1.png")),
                     new EnemyModel(Utils.randowNumber(0,360),0, 30, 24)
             );
             enemyPlaneController.setMoveBehavior(new MoveDownRightBehavior());
@@ -58,7 +61,7 @@ public class EnemyController  extends GameController{
         }  else if(type == EnemyType.BLUE){
 
             EnemyController enemyPlaneController = new EnemyController(
-                    new GameView(Utils.loadImages("enemy-green-2.png")),
+                    new EnemyView(Utils.loadImages("enemy-green-2.png")),
                     new EnemyModel(Utils.randowNumber(0,360),0, 30, 24)
             );
             enemyPlaneController.setMoveBehavior(new MoveDownLeft());
@@ -87,6 +90,11 @@ public class EnemyController  extends GameController{
         if(moveBehavior != null){
             moveBehavior.move(this.model);
         }
+        if (model.isExplosive()) {
+            if (!(((EnemyView) view).explode())) {
+                model.setDie();
+            }
+        }
     }
 
     @Override
@@ -95,8 +103,13 @@ public class EnemyController  extends GameController{
             this.hp -=50;
         }
 
-        if(this.hp <= 0){
-            this.model.setDie();
+        if (this.hp < 0) {
+            model.explosive();
+            if(isPlaysound) {
+                SoundPlayer shotSound = new SoundPlayer("explosive.wav");
+                shotSound.play();
+                isPlaysound = false;
+            }
         }
     }
 }

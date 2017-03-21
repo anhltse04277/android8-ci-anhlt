@@ -1,6 +1,7 @@
 package controllers;
 
 import utils.Utils;
+import views.EnemyView;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,7 +46,14 @@ public class PoolControllerManager extends ControllerManager {
         if(playerPlaneController.isCheckGetBomb()){
             for(GameController gc :gameControllers ){
                 if(gc instanceof EnemyController){
-                    gc.model.setDie();
+                    gc.model.explosive();
+                    if(gc.model.isExplosive()){
+                        if (!((EnemyView)gc.view).explode()) {
+                            gc.model.setDie();
+                        }
+                    }
+
+
                 }
             }
             playerPlaneController.setCheckGetBomb(false);
